@@ -20,13 +20,13 @@ class RestaurantController extends Controller
 
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'name'        => 'required|string|max:255',
-            'address'     => 'required|string',
-            'description' => 'nullable|string',
-            'latitude'    => 'nullable|numeric',
-            'longitude'   => 'nullable|numeric',
-        ]);
+        $data = $this->validateRestaurant($request);
+
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('public/images');
+            $filename = basename($path);
+            $data['image_url'] = env('APP_URL') . '/storage/images/' . $filename;
+        }
 
         $restaurant = Restaurant::create($data);
 
@@ -35,13 +35,13 @@ class RestaurantController extends Controller
 
     public function update(Request $request, Restaurant $restaurant)
     {
-        $data = $request->validate([
-            'name'        => 'sometimes|required|string|max:255',
-            'address'     => 'sometimes|required|string',
-            'description' => 'nullable|string',
-            'latitude'    => 'nullable|numeric',
-            'longitude'   => 'nullable|numeric',
-        ]);
+        $data = $this->validateRestaurant($request);
+
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('public/images');
+            $filename = basename($path);
+            $data['image_url'] = env('APP_URL') . '/storage/images/' . $filename;
+        }
 
         $restaurant->update($data);
 
@@ -53,5 +53,33 @@ class RestaurantController extends Controller
         $restaurant->delete();
 
         return response()->json(null, 204);
+    }
+
+    private function validateRestaurant(Request $request): array
+    {
+        return $request->validate([
+            'name'        => 'required|string|max:255',
+            'address'     => 'required|string',
+            'province'    => 'required|string',
+            'city'        => 'required|string',
+            'description' => 'nullable|string',
+            'latitude'    => 'nullable|numeric',
+            'longitude'   => 'nullable|numeric',
+            'mon_open'    => 'nullable|date_format:H:i:s',
+            'mon_close'   => 'nullable|date_format:H:i:s',
+            'tue_open'    => 'nullable|date_format:H:i:s',
+            'tue_close'   => 'nullable|date_format:H:i:s',
+            'wed_open'    => 'nullable|date_format:H:i:s',
+            'wed_close'   => 'nullable|date_format:H:i:s',
+            'thu_open'    => 'nullable|date_format:H:i:s',
+            'thu_close'   => 'nullable|date_format:H:i:s',
+            'fri_open'    => 'nullable|date_format:H:i:s',
+            'fri_close'   => 'nullable|date_format:H:i:s',
+            'sat_open'    => 'nullable|date_format:H:i:s',
+            'sat_close'   => 'nullable|date_format:H:i:s',
+            'sun_open'    => 'nullable|date_format:H:i:s',
+            'sun_close'   => 'nullable|date_format:H:i:s',
+            'image_url'       => 'nullable|image|max:2048' // ini menggantikan image_url
+        ]);
     }
 }

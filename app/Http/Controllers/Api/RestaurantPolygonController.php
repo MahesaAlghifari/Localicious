@@ -15,13 +15,10 @@ class RestaurantPolygonController extends Controller
         return response()->json($polygons, 200);
     }
 
-    // GET /api/restaurant-polygons/{restaurant_polygon}
+    // GET /api/restaurant-polygons/{id}
     public function show(RestaurantPolygon $restaurant_polygon)
     {
-        return response()->json(
-            $restaurant_polygon->load('restaurant'),
-            200
-        );
+        return response()->json($restaurant_polygon->load('restaurant'), 200);
     }
 
     // POST /api/restaurant-polygons
@@ -30,35 +27,33 @@ class RestaurantPolygonController extends Controller
         $data = $request->validate([
             'restaurant_id' => 'required|exists:restaurants,id',
             'name'          => 'nullable|string|max:255',
-            'coordinates'   => 'required|json',
+            'coordinates'   => 'required|array',
+            'coordinates.type' => 'required|in:Polygon',
+            'coordinates.coordinates' => 'required|array',
         ]);
 
         $polygon = RestaurantPolygon::create($data);
 
-        return response()->json(
-            $polygon->load('restaurant'),
-            201
-        );
+        return response()->json($polygon->load('restaurant'), 201);
     }
 
-    // PUT/PATCH /api/restaurant-polygons/{restaurant_polygon}
+    // PUT /api/restaurant-polygons/{id}
     public function update(Request $request, RestaurantPolygon $restaurant_polygon)
     {
         $data = $request->validate([
             'restaurant_id' => 'sometimes|required|exists:restaurants,id',
             'name'          => 'nullable|string|max:255',
-            'coordinates'   => 'sometimes|required|json',
+            'coordinates'   => 'sometimes|required|array',
+            'coordinates.type' => 'required_with:coordinates|in:Polygon',
+            'coordinates.coordinates' => 'required_with:coordinates|array',
         ]);
 
         $restaurant_polygon->update($data);
 
-        return response()->json(
-            $restaurant_polygon->load('restaurant'),
-            200
-        );
+        return response()->json($restaurant_polygon->load('restaurant'), 200);
     }
 
-    // DELETE /api/restaurant-polygons/{restaurant_polygon}
+    // DELETE /api/restaurant-polygons/{id}
     public function destroy(RestaurantPolygon $restaurant_polygon)
     {
         $restaurant_polygon->delete();

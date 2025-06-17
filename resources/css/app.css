@@ -64,3 +64,11 @@ select:focus[data-flux-control] {
 /* \[:where(&)\]:size-4 {
     @apply size-4;
 } */
+.filament-sidebar, .fi-sidebar, .fi-sidebar-nav {
+    z-index: 100 !important;
+    position: relative !important;
+}
+#map, .leaflet-container {
+    z-index: 1 !important;
+    position: relative !important;
+}

@@ -2,22 +2,20 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Laravel\Sanctum\HasApiTokens;
 
-class Customer extends Authenticatable
+class Customer extends Model
 {
-    use HasApiTokens, HasFactory;
+    use HasFactory;
 
-    // Mass-assign semua kolom
-    protected $guarded = [];
-
-    // Jika butuh relasi di masa depan
-    // public function orders() { ... }
+    protected $fillable = [
+        'user_id', 'phone_number', 'gender'
+    ];
 
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 }
+

@@ -10,25 +10,21 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-    {
-        Schema::create('payments', function (Blueprint $table) {
-            $table->id();
-            // Relasi ke order
-            $table->foreignId('order_id')
-                  ->constrained('orders')
-                  ->cascadeOnDelete();
-            // Total yang dibayarkan
-            $table->decimal('amount', 12, 2);
-            // Metode pembayaran (e.g., 'cash', 'midtrans', 'ewallet')
-            $table->string('method')->nullable();
-            // Status pembayaran (e.g., 'pending', 'paid', 'failed')
-            $table->enum('status', ['pending', 'paid', 'failed'])
-                  ->default('pending');
-            // ID virtual account atau reference jika ada
-            $table->string('reference_id')->nullable();
-            $table->timestamps(); // created_at & updated_at
-        });
-    }
+{
+    Schema::create('payments', function (Blueprint $table) {
+        $table->id();
+        $table->foreignId('order_id')->constrained()->cascadeOnDelete();
+        $table->string('transaction_id');           // dari Midtrans
+        $table->string('payment_type');
+        $table->string('transaction_status');
+        $table->string('fraud_status')->nullable();
+        $table->decimal('amount', 12, 2);
+        $table->string('bank')->nullable();         // opsional
+        $table->string('va_number')->nullable();    // opsional
+        $table->timestamps();
+    });
+}
+
 
     /**
      * Reverse the migrations.

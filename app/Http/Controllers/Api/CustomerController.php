@@ -1,70 +1,101 @@
+<!-- === [5] app/Http/Controllers/Api/CustomerController.php === -->
+
 <?php
 
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use App\Models\Customer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
+// app/Http/Controllers/Api/CustomerController.php
+
 class CustomerController extends Controller
 {
-    // GET /api/customers
+    /** GET /api/customers */
     public function index()
     {
-        return response()->json(Customer::all(), 200);
+        return Customer::with('user')->paginate(10);
     }
 
-    // GET /api/customers/{customer}
-    public function show(Customer $customer)
-    {
-        return response()->json($customer, 200);
-    }
-
-    // POST /api/customers
+    /** POST /api/customers */
     public function store(Request $request)
     {
         $data = $request->validate([
-            'full_name'    => 'required|string|max:255',
-            'email'        => 'required|email|unique:customers,email',
-            'password'     => 'required|string|min:6|confirmed',
-            'phone_number' => 'nullable|string',
-            'gender'       => 'nullable|in:male,female,other',
+            'name'          => 'required|string|max:255',
+            'email'         => 'required|email|unique:users,email',
+            'password'      => 'required|string|min:6|confirmed',
+            'phone_number'  => 'nullable|string|max:20',
+            'gender'        => 'nullable|in:male,female,other',
         ]);
 
-        $data['password'] = Hash::make($data['password']);
+        // 1. buat user-nya dulu
+        $user = User::create([
+            'name'     => $data['name'],
+            'email'    => $data['email'],
+            'password' => Hash::make($data['password']),
+            'role'     => 'customer',
+        ]);
 
-        $customer = Customer::create($data);
+        // 2. buat profil customer-nya
+        $customer = Customer::create([
+            'user_id'      => $user->id,
+            'phone_number' => $data['phone_number'] ?? null,
+            'gender'       => $data['gender'] ?? null,
+        ]);
 
-        return response()->json($customer, 201);
+        return response()->json([
+            'message'  => 'Customer created',
+            'customer' => $customer->load('user'),
+        ], 201);
     }
 
-    // PUT/PATCH /api/customers/{customer}
+    /** GET /api/customers/{customer} */
+    public function show(Customer $customer)
+    {
+        return $customer->load('user');
+    }
+
+    /** PUT /api/customers/{customer} */
     public function update(Request $request, Customer $customer)
     {
         $data = $request->validate([
-            'full_name'    => 'sometimes|required|string|max:255',
-            'email'        => "sometimes|required|email|unique:customers,email,{$customer->id}",
-            'password'     => 'sometimes|nullable|string|min:6|confirmed',
-            'phone_number' => 'nullable|string',
-            'gender'       => 'nullable|in:male,female,other',
+            'name'          => 'sometimes|required|string|max:255',
+            'email'         => 'sometimes|required|email|unique:users,email,' . $customer->user_id,
+            'password'      => 'nullable|string|min:6|confirmed',
+            'phone_number'  => 'nullable|string|max:20',
+            'gender'        => 'nullable|in:male,female,other',
         ]);
 
-        if (! empty($data['password'])) {
-            $data['password'] = Hash::make($data['password']);
-        } else {
-            unset($data['password']);
-        }
+        // update user
+        $customer->user->update([
+            'name'  => $data['name']  ?? $customer->user->name,
+            'email' => $data['email'] ?? $customer->user->email,
+            'password' => isset($data['password'])
+                ? Hash::make($data['password'])
+                : $customer->user->password,
+        ]);
 
-        $customer->update($data);
+        // update profile
+        $customer->update([
+            'phone_number' => $data['phone_number'] ?? $customer->phone_number,
+            'gender'       => $data['gender']       ?? $customer->gender,
+        ]);
 
-        return response()->json($customer, 200);
+        return response()->json([
+            'message'  => 'Customer updated',
+            'customer' => $customer->load('user'),
+        ]);
     }
 
-    // DELETE /api/customers/{customer}
+    /** DELETE /api/customers/{customer} */
     public function destroy(Customer $customer)
     {
+        $customer->user()->delete();   // cascade delete user
         $customer->delete();
-        return response()->json(null, 204);
+
+        return response()->json(['message' => 'Customer deleted']);
     }
 }

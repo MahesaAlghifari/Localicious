@@ -2,25 +2,38 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Payment extends Model
 {
     use HasFactory;
 
-    // Mass‐assign semua kolom
-    protected $guarded = [];
+    protected $fillable = [
+        'order_id',
+        'payment_method_id',
+        'transaction_id',
+        'payment_type',
+        'transaction_status',
+        'fraud_status',
+        'amount',
+        'bank',
+        'va_number',
+        'payload', // untuk menyimpan JSON dari Midtrans
+    ];
 
-    // Relasi ke Order
+    protected $casts = [
+        'payload' => 'array',
+        'amount'  => 'float',
+    ];
+
     public function order()
     {
         return $this->belongsTo(Order::class);
     }
 
-    // Relasi ke MidtransTransactions (jika ada)
-    public function midtransTransactions()
+    public function paymentMethod()
     {
-        return $this->hasMany(MidtransTransaction::class);
+        return $this->belongsTo(PaymentMethod::class);
     }
 }

@@ -3,15 +3,14 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\RestaurantPolygonResource\Pages;
-use App\Filament\Resources\RestaurantPolygonResource\RelationManagers;
 use App\Models\RestaurantPolygon;
+use App\Models\Restaurant;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Tables\Columns\ViewColumn;
 
 class RestaurantPolygonResource extends Resource
 {
@@ -23,24 +22,38 @@ class RestaurantPolygonResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('restaurant_id')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('name')
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('coordinates')
+                Forms\Components\Select::make('restaurant_id')
+                    ->label('Restaurant')
+                    ->options(function () {
+                        $used = \App\Models\RestaurantPolygon::pluck('restaurant_id')->toArray();
+                        return \App\Models\Restaurant::whereNotIn('id', $used)->pluck('name', 'id');
+                    })
+                    ->searchable()
                     ->required(),
+
+                Forms\Components\ViewField::make('coordinates')
+                    ->view('admin.partials.polygon_map')
+                    ->columnSpanFull()
+                    ->required()
             ]);
     }
+
 
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('restaurant_id')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('name')
+                Tables\Columns\TextColumn::make('restaurant.name')
+                    ->label('Restaurant')
+                    ->sortable()
+                    ->searchable(),
+                // Tables\Columns\TextColumn::make('name')
+                //     ->searchable(),
+                Tables\Columns\TextColumn::make('coordinates')
+                    ->label('Coordinates')
+                    ->limit(100) // biar tidak terlalu panjang
+
+                    ->copyable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
@@ -50,6 +63,10 @@ class RestaurantPolygonResource extends Resource
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+
+                // ViewColumn::make('coordinates')
+                //     ->label('Area')
+                //     ->view('admin.partials.polygon_map_preview'),
             ])
             ->filters([
                 //

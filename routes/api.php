@@ -26,7 +26,7 @@ Route::apiResource('customers', CustomerController::class);
 Route::apiResource('menus', MenuController::class);
 Route::apiResource('orders', OrderController::class);
 Route::apiResource('order-items', OrderItemController::class);
-Route::apiResource('payments', PaymentController::class);
+Route::apiResource('payments', RestaurantPaymentAccountController::class);
 Route::apiResource('notifications', NotificationController::class);
 Route::apiResource('restaurant-polygons', RestaurantPolygonController::class);
 Route::apiResource('geofencing-notifications', GeofencingNotificationController::class);
@@ -36,4 +36,6 @@ Route::apiResource('geofence-logs', GeofenceLogController::class);
 
 
 
-
+// routes/api.php
+Route::post('/payment-token', [PaymentController::class, 'getSnapToken']);
+Route::post('/payment/callback', [PaymentController::class, 'handleCallback']);
