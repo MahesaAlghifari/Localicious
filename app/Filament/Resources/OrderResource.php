@@ -29,23 +29,6 @@ class OrderResource extends Resource
     public static function form(Form $form): Form
     {
         return $form->schema([
-            /* ---- Customer & Restaurant ----------------------------------- */
-            Forms\Components\Section::make('Customer & Restaurant')
-                ->schema([
-                    Forms\Components\Select::make('user_id')
-                        ->relationship('user', 'name')
-                        ->searchable()
-                        ->required()
-                        ->label('Customer'),
-
-                    Forms\Components\Select::make('restaurant_id')
-                        ->relationship('restaurant', 'name')
-                        ->searchable()
-                        ->required()
-                        ->label('Restaurant'),
-                ])
-                ->columns(2),
-
             /* ---- Order Info ---------------------------------------------- */
             Forms\Components\Section::make('Order Info')
                 ->schema([
@@ -70,6 +53,10 @@ class OrderResource extends Resource
                     Forms\Components\DateTimePicker::make('scheduled_at')
                         ->label('Scheduled At'),
 
+                    Forms\Components\TextInput::make('table_number')
+                        ->label('Table Number')
+                        ->maxLength(10),
+
                     Forms\Components\TextInput::make('payment_method')
                         ->label('Payment Method'),
 
@@ -78,6 +65,7 @@ class OrderResource extends Resource
                         ->columnSpanFull(),
                 ])
                 ->columns(2),
+
         ]);
     }
 
@@ -108,7 +96,7 @@ class OrderResource extends Resource
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
                     ->label('Status')
-                    ->color(fn (string $state) => match ($state) {
+                    ->color(fn(string $state) => match ($state) {
                         'pending'    => 'gray',
                         'processing' => 'warning',
                         'completed'  => 'success',
@@ -129,7 +117,13 @@ class OrderResource extends Resource
 
                 Tables\Columns\TextColumn::make('payment_method')
                     ->label('Pay.')
-                    ->formatStateUsing(fn (?string $state) => $state ? ucfirst(str_replace('_', ' ', $state)) : '-')
+                    ->formatStateUsing(fn(?string $state) => $state ? ucfirst(str_replace('_', ' ', $state)) : '-')
+                    ->toggleable(isToggledHiddenByDefault: true),
+                /* -- Table Columns --------------------------------------------- */
+                Tables\Columns\TextColumn::make('table_number')
+                    ->label('Table')
+                    ->sortable()
+                    ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 /* -- Dates -------------------------------------------------- */

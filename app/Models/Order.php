@@ -21,6 +21,8 @@ class Order extends Model
         'payment_method',
         'notes',
         'midtrans_order_id',
+        'table_number', // ✅ Tambahkan ini
+
     ];
 
     /**
@@ -115,4 +117,19 @@ class Order extends Model
     {
         return ucfirst($this->status);
     }
+    public const STATUS_PENDING = 'pending';
+public const STATUS_PROCESSING = 'processing';
+public const STATUS_COMPLETED = 'completed';
+public const STATUS_CANCELLED = 'cancelled';
+
+public static function statuses(): array
+{
+    return [
+        self::STATUS_PENDING,
+        self::STATUS_PROCESSING,
+        self::STATUS_COMPLETED,
+        self::STATUS_CANCELLED,
+    ];
+}
+
 }

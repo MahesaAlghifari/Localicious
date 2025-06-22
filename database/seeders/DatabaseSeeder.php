@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             RestaurantPolygonSeeder::class,
             SuperAdminSeeder::class,
             PaymentMethodSeeder::class,
+            RestaurantPaymentMethodSeeder::class,
 
             // Seeder lain jika ada
         ]);

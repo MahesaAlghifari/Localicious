@@ -23,10 +23,10 @@ Route::middleware(['auth'])->group(function () {
 
 require __DIR__.'/auth.php';
 
-/*
-|--------------------------------------------------------------------------
-| SPA Fallback (exclude /api/* so API routes tetap diproses di api.php)
-|--------------------------------------------------------------------------
-*/
-Route::view('/{any}', 'app')    // ganti 'app' dengan nama view SPA-mu
-    ->where('any', '^(?!api).*$');
+// /*
+// |--------------------------------------------------------------------------
+// | SPA Fallback (exclude /api/* so API routes tetap diproses di api.php)
+// |--------------------------------------------------------------------------
+// */
+// Route::view('/{any}', 'app')    // ganti 'app' dengan nama view SPA-mu
+//     ->where('any', '^(?!api).*$');

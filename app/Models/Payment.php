@@ -36,4 +36,9 @@ class Payment extends Model
     {
         return $this->belongsTo(PaymentMethod::class);
     }
+
+    public function isSuccessful(): bool
+    {
+        return $this->transaction_status === 'settlement' && $this->fraud_status !== 'challenge';
+    }
 }

@@ -79,7 +79,7 @@ class RestaurantController extends Controller
             'sat_close'   => 'nullable|date_format:H:i:s',
             'sun_open'    => 'nullable|date_format:H:i:s',
             'sun_close'   => 'nullable|date_format:H:i:s',
-            'image_url'       => 'nullable|image|max:2048' // ini menggantikan image_url
+            'image' => 'nullable|image|max:2048'
         ]);
     }
 }

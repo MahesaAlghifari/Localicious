@@ -39,4 +39,8 @@ class RestaurantPolygon extends Model
             ->map(fn($c) => '[' . implode(', ', $c) . ']')
             ->implode('<br>');
     }
+    public function getFlattenedCoordinatesAttribute()
+    {
+        return $this->coordinates[0] ?? [];
+    }
 }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CustomerController;
 use App\Http\Controllers\Api\GeofenceLogController;
 use App\Http\Controllers\Api\GeofencingNotificationController;
@@ -13,6 +14,9 @@ use App\Http\Controllers\Api\RestaurantAdminController;
 use App\Http\Controllers\Api\RestaurantController;
 use App\Http\Controllers\Api\RestaurantPaymentAccountController;
 use App\Http\Controllers\Api\RestaurantPolygonController;
+use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\PaymentMethodController;
+use App\Http\Controllers\Api\RestaurantPaymentMethodController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -26,16 +30,14 @@ Route::apiResource('customers', CustomerController::class);
 Route::apiResource('menus', MenuController::class);
 Route::apiResource('orders', OrderController::class);
 Route::apiResource('order-items', OrderItemController::class);
-Route::apiResource('payments', RestaurantPaymentAccountController::class);
 Route::apiResource('notifications', NotificationController::class);
 Route::apiResource('restaurant-polygons', RestaurantPolygonController::class);
 Route::apiResource('geofencing-notifications', GeofencingNotificationController::class);
-Route::apiResource('restaurant-payment-accounts', RestaurantPaymentAccountController::class);
-Route::apiResource('midtrans-transactions', MidtransTransactionController::class);
 Route::apiResource('geofence-logs', GeofenceLogController::class);
+Route::apiResource('users', UserController::class);
+Route::post('/login', [AuthController::class, 'login']);
+Route::apiResource('payment-methods', PaymentMethodController::class)->only(['index', 'store']);
+Route::apiResource('restaurant-payment-methods', RestaurantPaymentMethodController::class);
+Route::get('/restaurant-payment-methods/restaurant/{id}', [RestaurantPaymentMethodController::class, 'getByRestaurant']);
 
 
-
-// routes/api.php
-Route::post('/payment-token', [PaymentController::class, 'getSnapToken']);
-Route::post('/payment/callback', [PaymentController::class, 'handleCallback']);

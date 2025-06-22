@@ -10,10 +10,6 @@ use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
-    /**
-     * GET /api/orders
-     * Menampilkan semua order beserta relasinya
-     */
     public function index()
     {
         return response()->json(
@@ -23,15 +19,12 @@ class OrderController extends Controller
         );
     }
 
-    /**
-     * POST /api/orders
-     * Membuat order baru beserta order items
-     */
     public function store(Request $request)
     {
         $data = $request->validate([
             'user_id'            => 'required|exists:users,id',
             'restaurant_id'      => 'required|exists:restaurants,id',
+            'table_number'       => 'nullable|string|max:10',
             'scheduled_at'       => 'nullable|date',
             'payment_method'     => 'nullable|string',
             'notes'              => 'nullable|string',
@@ -43,24 +36,22 @@ class OrderController extends Controller
         DB::beginTransaction();
 
         try {
-            // Buat order kosong dulu
             $order = Order::create([
                 'user_id'        => $data['user_id'],
                 'restaurant_id'  => $data['restaurant_id'],
+                'table_number'   => $data['table_number'] ?? null,
                 'scheduled_at'   => $data['scheduled_at'] ?? null,
                 'payment_method' => $data['payment_method'] ?? null,
                 'notes'          => $data['notes'] ?? null,
                 'status'         => 'pending',
-                'total_amount'   => 0, // akan dihitung setelah order item ditambahkan
+                'total_amount'   => 0,
             ]);
 
-            // Ambil semua menu sekaligus (1 query)
             $menuIds = collect($data['items'])->pluck('menu_id')->unique();
             $menus = Menu::whereIn('id', $menuIds)->get()->keyBy('id');
 
             $total = 0;
 
-            // Tambahkan order items
             foreach ($data['items'] as $item) {
                 $menu = $menus[$item['menu_id']] ?? null;
 
@@ -82,7 +73,6 @@ class OrderController extends Controller
                 $total += $subtotal;
             }
 
-            // Update total order
             $order->update(['total_amount' => $total]);
 
             DB::commit();
@@ -102,10 +92,6 @@ class OrderController extends Controller
         }
     }
 
-    /**
-     * GET /api/orders/{order}
-     * Menampilkan detail order
-     */
     public function show(Order $order)
     {
         return response()->json(
@@ -114,10 +100,6 @@ class OrderController extends Controller
         );
     }
 
-    /**
-     * PUT /api/orders/{order}
-     * Update data order (hanya metadata, bukan item)
-     */
     public function update(Request $request, Order $order)
     {
         $data = $request->validate([
@@ -125,6 +107,7 @@ class OrderController extends Controller
             'scheduled_at'   => 'nullable|date',
             'payment_method' => 'nullable|string',
             'notes'          => 'nullable|string',
+            'table_number'   => 'nullable|string|max:10',
         ]);
 
         $order->update($data);
@@ -135,10 +118,6 @@ class OrderController extends Controller
         );
     }
 
-    /**
-     * DELETE /api/orders/{order}
-     * Hapus order beserta itemnya
-     */
     public function destroy(Order $order)
     {
         $order->delete();

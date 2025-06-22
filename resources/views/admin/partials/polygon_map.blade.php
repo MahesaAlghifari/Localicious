@@ -8,11 +8,11 @@
 
 
 
-<style>
-    #map {
-        margin-top: 10px !important;
-    }
-</style>
+    <style>
+        #map {
+            margin-top: 10px !important;
+        }
+    </style>
 
 
 
@@ -58,14 +58,14 @@
             map.on(L.Draw.Event.CREATED, function(event) {
                 drawnItems.clearLayers();
                 drawnItems.addLayer(event.layer);
-                var geojson = event.layer.toGeoJSON().geometry.coordinates[0];
+                var geojson = event.layer.toGeoJSON().geometry.coordinates;
                 el.value = JSON.stringify(geojson);
                 el.dispatchEvent(new Event('input'));
             });
             map.on('draw:edited', function(e) {
                 var layers = e.layers;
                 layers.eachLayer(function(layer) {
-                    var geojson = layer.toGeoJSON().geometry.coordinates[0];
+                    var geojson = layer.toGeoJSON().geometry.coordinates;
                     el.value = JSON.stringify(geojson);
                     el.dispatchEvent(new Event('input'));
                 });

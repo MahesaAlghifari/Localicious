@@ -1,5 +1,3 @@
-<!-- === [5] app/Http/Controllers/Api/CustomerController.php === -->
-
 <?php
 
 namespace App\Http\Controllers\Api;

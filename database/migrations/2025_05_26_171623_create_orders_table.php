@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-        
+
             // 🔗 Relasi ke pengguna (customer)
             $table->foreignId('user_id')
                 ->constrained('users')          // pastikan nama tabel relasi adalah 'users'
@@ -35,6 +35,7 @@ return new class extends Migration
             $table->timestamp('scheduled_at')
                 ->nullable()
                 ->comment('Waktu penjadwalan pesanan');
+            $table->string('table_number')->nullable()->comment('Nomor meja pelanggan');
 
             // 💳 Metode pembayaran
             $table->string('payment_method')
